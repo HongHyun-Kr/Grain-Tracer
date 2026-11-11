@@ -1,7 +1,8 @@
 #!/bin/bash
 # Builds "Grain Tracer.app" (Apple Silicon + Intel where the toolchain allows) with the Xcode Command Line Tools — no Xcode project needed.
 #   xcode-select --install   # once, if swiftc is missing
-#   ./build.sh               # → build/Grain Tracer.app
+#   bash build.sh            # → build/Grain Tracer.app
+#   bash build.sh --zip      # also → dist/GrainTracer-<version>-macOS.zip (attach this to a GitHub Release)
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -50,3 +51,12 @@ codesign --force --deep --sign - "$APP" >/dev/null
 
 echo "✓ Built: $APP"
 echo "  Run:   open \"$APP\""
+
+if [ "${1:-}" = "--zip" ]; then
+  VER=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" mac/Info.plist)
+  mkdir -p dist
+  ZIP="dist/GrainTracer-$VER-macOS.zip"
+  rm -f "$ZIP"
+  ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"   # keeps the executable bit and signature
+  echo "✓ Release zip: $ZIP"
+fi

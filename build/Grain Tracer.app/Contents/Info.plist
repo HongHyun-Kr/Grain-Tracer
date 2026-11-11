@@ -7,7 +7,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Grain Tracer</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.github.honghyun-kr.graintracer</string>
+	<string>com.honghyun.graintracer</string>
 	<key>CFBundleExecutable</key>
 	<string>GrainTracer</string>
 	<key>CFBundleIconFile</key>

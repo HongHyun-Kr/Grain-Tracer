@@ -1,221 +1,188 @@
-# Grain Tracer
+<p align="center">
+  <img src="mac/icon_1024.png" width="128" alt="Grain Tracer app icon">
+</p>
 
-**Detects grain boundaries in SEM images and quantifies grain size distributions (ECD) on the same basis as EBSD.**
+<h1 align="center">Grain Tracer</h1>
+<p align="center"><i>Grain size from SEM images, on the same basis as EBSD.</i></p>
 
-Runs as a macOS app, a Windows app or in a browser (`index.html`). All three use the same code, and image data never leaves your computer.
+Grain Tracer finds grain boundaries in SEM images and measures the grain size distribution as ECD (equivalent circle diameter), the same definition EBSD software uses. Open several samples, check the boundaries, fix them by hand where needed, and compare every sample in one table and one set of plots.
+
+It runs as a macOS app, a Windows app or a single `index.html` in the browser. All three use the same code. No account, no server, and images never leave your computer.
 
 ![Grain Tracer](docs/main.png)
 
----
-
 ## Background
 
-While crystallizing a-Si thin films with a UV nanosecond laser, I needed to compare grain size across fluence, shot count and scan direction. EBSD required external measurement requests, so not every condition could be measured. Analyzing the SEM images in ImageJ (intensity thresholding) picked up the glow next to boundaries and bright spots inside grains as boundaries, so manual correction was always needed.
+While crystallizing a-Si thin films with a UV nanosecond laser, I needed to compare grain size across fluence, shot count and scan direction. EBSD needed external measurement requests, so not every condition could be measured. Thresholding the SEM images in ImageJ picked up the glow next to boundaries and bright spots inside grains, so every image needed manual correction.
 
-Grain Tracer was built to **complement EBSD and compare every condition on the same basis**, with an algorithm designed around the signal characteristics of these SEM images.
+Grain Tracer was built to **complement EBSD and compare every condition on the same basis**, with an algorithm designed around the signal of these SEM images.
 
 ## Features
 
-| | |
+- **Boundary detection**: `Line` mode for crack or groove boundaries (dark or bright) and `Contrast` mode for tone steps between grains. The type is detected automatically when an image opens.
+- **Automatic scale**: reads dotted tick bars (Hitachi), solid bars and bars in an inset box, even when a boundary crosses the ticks. A Hitachi `.txt` with the same name is used first.
+- **Same criteria at any magnification**: every default parameter is defined in nm and converted from the pixel size.
+- **Manual correction**: draw, erase, split and merge. Edits are stored as coordinates, so they stay when you process again with new parameters.
+- **Statistics table**: every sample in one table with N, mean, SD, 95 % CI, %RA, D10/D50/D90, area-weighted ECD, linear intercept Lx and Ly, and aspect ratio.
+- **Reliability check**: flags grains under ~75 px across, fewer than 50 grains, or %RA above 10 %.
+- **Plots**: box plot, number- and area-fraction histograms, cumulative distribution and grain shape. Each plot keeps its own choice of samples.
+- **Excel reports**: one report per sample (images, histogram, figures, grain table) or one for all samples. CSV for MATLAB, Python and Origin.
+- **Images**: Boundary, Grain, Size Map (Turbo, Jet, Viridis, Plasma) and Signal views. Export as PNG, JPG or WebP, or copy to the clipboard with ⌘⇧C.
+- **Help**: `?` buttons open short explanations with diagrams, in English or Korean.
+- **Inputs**: TIF (including Hitachi palette TIF), PNG, JPG.
+
+| Statistics | Size map |
 |---|---|
-| **Boundary detection** | `Line` mode (crack/groove-type boundaries, dark or bright) and `Contrast` mode (boundaries seen as tone steps between grains). The type and line tone are **detected automatically** when an image opens |
-| **Automatic scale** | Detects dotted tick bars (Hitachi), solid bars and bars in an inset box, also when a boundary or particle crosses the ticks; reads `PixelSize` from Hitachi `.txt` files |
-| **Physical-unit parameters** | All default parameters are defined in nm, so images at different magnifications are analyzed with the same criteria |
-| **Manual correction** | Draw boundary, erase boundary, split grain, merge grains. Edits are stored as coordinates and persist when you reprocess with new parameters |
-| **Metrics** | N, mean and SD, **95 % confidence interval and %RA**, D10/D50/D90, area-weighted ECD, aspect ratio, linear intercept Lx and Ly |
-| **Reliability check** | Flags results that are hard to trust: grains under ~75 px across, fewer than 50 grains, or %RA above 10 % |
-| **Statistics table** | One table of every sample on the Result canvas, above the box plot (or table / plot only) |
-| **Visualization** | Boundary / Grain / Size Map (Turbo, Jet, Viridis, Plasma) / Signal views; box plot, number- and area-fraction histograms, cumulative distribution and grain shape plots |
-| **Multiple samples** | Open several images at once, run Process All, and copy detection settings with Apply to All Samples (converted in nm). Each plot keeps its own selection of samples; Minimum ECD is set per sample |
-| **Help** | `?` buttons open short explanations with diagrams, in English or Korean |
-| **Desktop apps** | macOS: native window and menus, Open With from Finder, save panels. Windows: WebView2 window, Open with / drag onto the exe, save dialogs. Both read a Hitachi `.txt` with the same name |
-| **Export** | Excel report (summary page with images, figures, grain table), All Samples report (comparison sheet + one sheet per sample), CSV results, image export (PNG, JPG, WebP) with preview, copy to clipboard |
-| **Input formats** | TIF (including Hitachi palette TIF with deflate compression), PNG, JPG |
+| ![Statistics](docs/statistics.png) | ![Size map](docs/size_map.png) |
+| **ECD distribution** | **Main window** |
+| ![ECD distribution](docs/distribution.png) | ![Main window](docs/main.png) |
 
-![Statistics](docs/statistics.png)
+## Install
 
-![Size map](docs/size_map.png)
+### macOS
 
-![ECD distribution](docs/distribution.png)
+1. Get the latest `GrainTracer-x.y.z-macOS.zip` from [Releases](../../releases) and unzip it.
+2. Move `Grain Tracer.app` to `/Applications`.
+3. The app is not notarized, so macOS blocks the first launch. Open **System Settings → Privacy & Security** and click **Open Anyway**, or run:
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/Grain Tracer.app"
+   ```
+4. Open images with **File → Open Image…** (⌘O), **Open With** in Finder, or by dropping them on the Dock icon.
 
-## Getting started
+### Windows
 
-### macOS app
+1. Get the latest `GrainTracer-x.y.z-Windows.zip` from [Releases](../../releases) and unzip it anywhere.
+2. Run `GrainTracer.exe`. The app is not signed, so SmartScreen may warn: click **More info → Run anyway**.
+3. Open images with **Add Images**, by dragging them onto the window, or with **Open with** in Explorer.
 
-**Download**: get `GrainTracer-<version>-macOS.zip` from [Releases](../../releases/latest), unzip it and move the app to Applications. Runs on Apple Silicon and Intel Macs (macOS 12 or later).
-
-- The app is not notarized, so macOS blocks the first launch. On macOS 14 and earlier, right-click the app ▸ **Open**. On macOS 15 and later, try to open it once, then click **Open Anyway** in **System Settings ▸ Privacy & Security**.
-
-**Build from source**: only the Command Line Tools are needed, no Xcode project.
-
-```bash
-xcode-select --install   # once, if swiftc is missing
-./build.sh               # → build/Grain Tracer.app
-open "build/Grain Tracer.app"
-```
-
-- Open images with `File ▸ Open Image…` (⌘O), **Open With** in Finder, or by dropping them on the Dock icon. A Hitachi `.txt` with the same name is read automatically.
-- Exports are saved through the macOS save panel.
-
-### Windows app
-
-**Download**: get `GrainTracer-<version>-Windows.zip` from [Releases](../../releases/latest), unzip it anywhere and run `GrainTracer.exe`. Runs on Windows 10 and 11 (64-bit).
-
-- The app is not signed, so SmartScreen may warn on the first launch: click **More info ▸ Run anyway**.
-- It uses the Microsoft Edge WebView2 Runtime, which is part of Windows 11 and current Windows 10. If it is missing, the app shows a link to install it.
-- Open images with **Add Images**, by dragging them onto the window, or with **Open with** in Explorer. Exports are saved through the Windows save dialog.
-
-**Build**: GitHub Actions (`.github/workflows/release.yml`) builds it on a version tag, so no Windows PC is needed. To build on Windows yourself, install the .NET SDK and run `dotnet build win/GrainTracer.csproj -c Release -o out/GrainTracer`.
+It uses the Microsoft Edge WebView2 Runtime, which comes with Windows 11 and current Windows 10. If it is missing, the app shows a link to install it.
 
 ### Browser
 
-Open `index.html` in Chrome, Edge or Safari. It works offline with no external CDN, and can be hosted on GitHub Pages.
+Open `index.html` in Chrome, Edge or Safari. It works offline and can be hosted on GitHub Pages.
 
-### Workflow
+### Build from source
 
-1. **Add Images** or drag & drop SEM images. Several can be opened at once; each appears under **Samples** in the Workspace.
-2. **Scale**: the bar is measured automatically. Check that `Bar` matches the value printed on the image (e.g. `2.00`, `3.00` µm).
-3. **Grain Boundary Detection**: the boundary type is chosen automatically (see Messages). Click **Process** (current sample) or **Process All**. Settings tuned on one sample can be copied with **Apply to All Samples**.
-4. Correct with Draw GB / Erase GB / Split / Merge on the **Edit** tab if needed. Set **Minimum ECD** for each sample under ROI ▸ Grain Filter.
-5. Enter the condition in each sample's **Label** (e.g. `340 mJ/cm² · 800 shots`); it is used in tables and legends. Compare samples on the **Results** tab and export an Excel report, CSV or images.
+macOS needs only the Xcode Command Line Tools (no Xcode).
 
-> **Demo Sample** opens a synthetic image with known ground truth (five styles), so you can check the result and its error.
+```bash
+xcode-select --install        # skip if already installed
+git clone https://github.com/HongHyun-kr/Grain-Tracer.git
+cd Grain-Tracer
+bash build.sh                 # → build/Grain Tracer.app
+open "build/Grain Tracer.app"
+```
 
-### Layout
+`bash build.sh --zip` also creates `dist/GrainTracer-<version>-macOS.zip` for a release.
 
-| Area | Contents |
-|---|---|
-| Ribbon | Home (image, scale, detection, view, layout), Edit (correction tools), Results (plots, export) |
-| Workspace | Samples (Scale, ROI, Grain Boundary Detection, Manual Edits of each sample) → Results (Grain Statistics, ECD Distribution, Cumulative, Grain Shape, Export) |
-| Settings | Settings of the selected node; `?` opens help |
-| Canvas | SEM image with overlay, or the statistics table and plots for all samples |
-| Messages / Progress / Table | Log, step progress, grain list |
+Windows is built by GitHub Actions, so no Windows PC is needed. To build it on Windows yourself, install the .NET SDK and run `dotnet build win/GrainTracer.csproj -c Release -o out/GrainTracer`.
 
-### Shortcuts
+## Usage
+
+1. **Add Images** or drag SEM images in. Each one appears under **Samples** in the Workspace.
+2. **Scale**: check that the scale bar value matches the number printed on the image (e.g. `2.00` µm). The number itself is not read.
+3. **Process** the current sample or **Process All**. Settings tuned on one sample can be copied with **Apply to All Samples**.
+4. Fix boundaries on the **Edit** tab if needed, and set **Minimum ECD** for each sample under ROI → Grain Filter.
+5. Give each sample a **Label** (e.g. `340 mJ/cm² · 800 shots`), compare them on the **Results** tab and export.
+
+**Demo Sample** opens a synthetic image with known boundaries (five styles), so you can see the result next to its true value.
 
 | Key | Action | Key | Action |
 |---|---|---|---|
 | `V` | Pan | `B` | Draw boundary |
-| `R` | ROI (drag corners and edges to resize) | `E` | Erase boundary |
-| `S` | Scale line (snaps horizontal/vertical, `Alt` for free angle) | `A` | Split grain |
+| `R` | ROI | `E` | Erase boundary |
+| `S` | Scale line | `A` | Split grain |
 | `M` | Merge two grains | `F` | Fit |
-| `I` (hold) | Show the original image | `Space`+drag | Temporary pan |
+| `I` (hold) | Show the original image | `Space` + drag | Temporary pan |
 | `⌘Z` / `Ctrl+Z` | Undo | `⌘⇧Z` / `Ctrl+Y` | Redo |
-| `⌘O` / `Ctrl+O` | Open image | `⌘⇧C` / `Ctrl+Shift+C` | Copy view or plot to clipboard |
-| `Esc` | Cancel merge selection | | |
+| `⌘O` / `Ctrl+O` | Open image | `⌘⇧C` / `Ctrl+Shift+C` | Copy view or plot |
 
-## Algorithm
+## Requirements
 
-```mermaid
-flowchart LR
-  A[SEM image] --> T[Boundary type detection]
-  T --> B{GB type}
-  B -->|Line| C[Hessian + valley test]
-  B -->|Contrast| D[Scan-line destripe → Sobel gradient + bright-line valley]
-  C --> E[Oriented line filter]
-  D --> E
-  E --> F[Hysteresis threshold + small-segment removal]
-  F --> G[Euclidean distance map]
-  G --> H[h-maxima seeds]
-  H --> I[Seeded watershed]
-  I --> J[Weak-boundary merge]
-  J --> K[Manual edits]
-  K --> L[Grain metrics]
-```
+- macOS 12 Monterey or later (Apple Silicon; Intel when built as a universal binary)
+- Windows 10 or 11, 64-bit
+- Any current Chrome, Edge or Safari for `index.html`
 
-0. **Boundary type detection** — Measures the strength of dark lines, bright lines and regional tone steps against the pixel noise, then picks `Line` (dark or bright) or `Contrast`. Bright lines are chosen only when clearly stronger than dark ones, so dark boundaries with a bright halo stay `dark`.
-1. **Valley filter (Line mode)** — The boundary normal is taken from the Hessian eigenvector. A pixel counts as boundary only when the points ±2σ on **both** sides of the normal are brighter than the center.
-   `R = min(I(p + d·n), I(p − d·n)) − I(p)` (dark line)
-   This rejects the rims of bright spots and glow edges, which are bright on one side only.
-2. **Oriented line filter** — Averages along a fixed length in 12 directions and takes the maximum. Short point noise is suppressed and only continuous boundaries remain.
-3. **Hysteresis threshold** — Pixels above `Start level` are boundaries; pixels between `Continue level` and `Start level` are kept only if connected to a strong boundary.
-4. **Distance map + h-maxima seeds** — Maxima of height ≥ h in the distance-to-boundary map become grain seeds, so grains are separated even where boundaries are partly broken.
-5. **Seeded watershed** — Priority flood on a relief combining boundary signal and distance.
-6. **Weak-boundary merge** — Adjacent grains are merged when the mean boundary signal between them is below the threshold, reducing over-segmentation.
+## Data
 
-### Default parameters (Line mode, in nm → converted from the image pixel size)
-
-| Parameter | Default | Meaning |
-|---|---|---|
-| Boundary width σ | 4.75 nm | Width of boundary lines to detect |
-| Line length filter | 60 nm | Only lines at least this long count as boundaries |
-| Start / Continue level | 0.50 / 0.18 | Hysteresis thresholds |
-| Split depth h | 8 nm | Larger values split grains less |
-| Weak-boundary merge | 0.15 | Merge threshold for weak boundaries |
-| Computation scale | Auto | Downsampling for computation (≈4 nm/px) |
-
-## Metrics
-
-| Metric | Definition |
+| | Location |
 |---|---|
-| **ECD** | Equivalent circle diameter, `ECD = 2√(A/π)` — same grain size definition as EBSD software |
-| **95 % CI, %RA** | Half-width of the 95 % confidence interval of the mean ECD (t-distribution), and `%RA = CI / mean`. %RA ≤ 10 % is the usual target (ASTM E1382) |
-| **Number fraction** | Grains in a bin / total grains |
-| **Area fraction** | Total grain area in a bin / total area |
-| **Area-weighted ECD** | `Σ(ECDᵢ·Aᵢ) / ΣAᵢ` |
-| **Aspect ratio, angle** | Major/minor axis of the equivalent ellipse from second moments, and major-axis direction |
-| **Lx, Ly** | Mean linear intercept along x and y test lines (ASTM E112 intercept method). `Lx/Ly` indicates scan-direction anisotropy |
+| Images and results | Only where you save them. Nothing is uploaded |
+| macOS settings | `~/Library/WebKit/com.honghyun.graintracer` |
+| Windows settings | `%LOCALAPPDATA%\GrainTracer` |
 
-- By default, grains touching the ROI edge are excluded from statistics for all samples, so comparisons share the same basis. Grains below `Minimum ECD` (default 80 nm) are excluded per sample.
+Settings are only view preferences such as the help language and the table layout. Delete the folder to start fresh.
 
 ## Validation
 
-Real SEM images have no ground truth, so the algorithm was validated on **synthetic SEM images** with known boundary positions — an approach used for evaluating SEM measurement algorithms [1] and in grain segmentation studies [2]. Detected grains were matched to true grains (IoU ≥ 0.5) in 156 runs.
+Real SEM images have no ground truth, so the algorithm was checked on **synthetic SEM images** with known boundaries [1, 2]. Detected grains were matched to true grains (IoU ≥ 0.5) in 156 runs.
 
-- **Accuracy** (5 image styles × 8 random seeds): grain-matching F1 0.89 on average. Error against the true values: **linear intercept +1.1 ± 4.8 %**, **area-weighted ECD +1.8 ± 4.6 %**, mean ECD −5.0 ± 5.8 %. Matched grains have a median size error under 1 %; the remaining error comes from split or merged grains, which mainly affects the number mean.
-- **Scale**: automatic pixel size within 0.16 % of the set value.
-- **Robustness**: flips and rotations, 0.5–1.5× magnification, contrast, gamma and uneven illumination changed the mean ECD by up to ~3 % in the line-boundary styles; added noise and blur lowered F1 gradually. Each detection parameter at ±20 % changed the mean ECD by about ±2 % (up to ~8 % for coarse grains with bright boundaries).
-- **Limit**: accuracy drops for grains under ~75 px across (F1 0.70 at 45 px). Computation scale 1/1 with shorter line length and boundary width recovers it (F1 0.88–0.91); the app warns in this range.
-- **Boundary type detection**: correct in all 20 synthetic test images.
+| Measure | Error against the true value |
+|---|---|
+| Linear intercept Lx, Ly | **+1.1 ± 4.8 %** |
+| Area-weighted ECD | **+1.8 ± 4.6 %** |
+| Mean ECD | −5.0 ± 5.8 % |
+| Grain matching F1 | 0.89 |
+| Pixel size from the scale bar | within 0.16 % |
 
-- [ ] Same-area SEM vs. EBSD comparison (planned)
+- Matched grains have a median size error under 1 %. The remaining error comes from grains that are split or merged, which mostly affects the number mean.
+- Flips, rotations, 0.5–1.5× magnification, contrast, gamma and uneven lighting changed the mean ECD by up to about 3 %. Each parameter at ±20 % changed it by about ±2 %.
+- Accuracy drops for grains under ~75 px across (F1 0.70 at 45 px). The app warns in this range.
+- The boundary type was detected correctly in all 20 synthetic test images.
 
 ## Limitations
 
 - The algorithm was designed around Hitachi SE images of laser-crystallized a-Si films. Other materials or detectors may need parameter tuning.
-- Grains with dense surface texture (dots, speckle) can be over-split; raise `Line length filter` or `Start level`, or correct by hand.
-- Contrast mode can miss boundaries between grains of similar brightness, which then need manual correction.
-- The scale bar number (e.g. `2.00um`) is not read by OCR, so check the value yourself.
-- Synthetic validation reflects accuracy under the modeled conditions; accuracy on real samples needs separate confirmation against EBSD or manual counting.
+- Grains with dense surface texture (dots, speckle) can be over-split. Raise `Line length filter` or `Start level`, or fix them by hand.
+- `Contrast` mode can miss boundaries between grains of similar brightness.
+- Synthetic validation shows accuracy under modeled conditions. Accuracy on real samples needs a separate check against EBSD or manual counting.
 
-## Project structure
+## Project layout
 
 ```
-GrainTracer/
-├── index.html            # Browser build (generated by tools/build_web.py)
-├── build.sh              # macOS app build (Universal, Command Line Tools)
-├── package.sh            # Release zip → dist/
-├── RELEASE_NOTES.md      # GitHub Release body
-├── LICENSE               # MIT
-├── .github/workflows/    # release.yml builds the macOS and Windows apps and publishes the Release on tag push
-├── src/
-│   ├── gbcore.js         # Core algorithms (also runs in Node.js)
-│   ├── app.js            # UI, statistics, plots, export
-│   ├── help.js           # Help pop-ups (English / Korean)
-│   └── ui.html           # Layout and styles
-├── vendor/               # UTIF.js, pako (TIFF decoding, MIT)
-├── mac/
-│   ├── main.swift        # WKWebView-based macOS shell (open/save panels, menus)
-│   ├── Info.plist
-│   └── icon_1024.png
-├── win/
-│   ├── Program.cs        # WebView2-based Windows shell (save dialogs, Open with)
-│   ├── GrainTracer.csproj
-│   ├── app.manifest
-│   └── icon.ico          # Generated from mac/icon_1024.png
-├── tools/
-│   ├── build_web.py      # src + vendor → index.html
-│   └── make_ico.py       # mac/icon_1024.png → win/icon.ico
-└── docs/                 # README images (generated from the synthetic samples)
+index.html          browser build (made by tools/build_web.py)
+src/                gbcore.js (algorithms), app.js (UI, statistics, plots, export), help.js, ui.html
+vendor/             UTIF.js and pako for TIFF decoding (MIT)
+mac/                main.swift (WKWebView shell, open/save panels, menus), Info.plist, icon_1024.png
+win/                Program.cs (WebView2 shell, save dialogs, Open with), GrainTracer.csproj, icon.ico
+tools/              build_web.py (src → index.html), make_ico.py (mac icon → win/icon.ico)
+build.sh            builds the macOS app, makes the .icns and signs it; --zip makes the release zip
+.github/workflows/  release.yml builds both apps on a version tag and publishes the Release
+docs/               screenshots for this README (synthetic samples)
 ```
 
-After editing the code, rebuild `index.html` with `python3 tools/build_web.py` and the app with `./build.sh`.
+After editing `src/`, run `python3 tools/build_web.py` to rebuild `index.html`, then `bash build.sh` for the app.
 
-**Releases**: pushing a tag like `v1.1.0` makes GitHub Actions (`release.yml`) build the macOS and Windows apps and attach both zips to one Release, with `RELEASE_NOTES.md` as its text. To build locally, run `./build.sh && ./package.sh`; the zip goes to `dist/`.
+## How it works
 
-## Tech stack
+- **One page, three shells**: the whole tool is `index.html`. The macOS app wraps it in `WKWebView` and the Windows app in WebView2. Exports go through the native save panel and opened files are passed in from the shell.
+- **Boundary type**: the strength of dark lines, bright lines and tone steps is compared with the pixel noise to pick `Line` (dark or bright) or `Contrast`.
+- **Valley filter**: the boundary normal comes from the Hessian. A pixel counts as boundary only when both sides along the normal are brighter, `R = min(I(p + d·n), I(p − d·n)) − I(p)`, so the one-sided rims of bright spots and glow are rejected.
+- **Line filter**: averages along 12 directions and keeps the maximum, so short specks fade and continuous lines remain.
+- **Hysteresis**: pixels above `Start level` become boundary and grow through connected pixels above `Continue level`.
+- **Seeded watershed**: h-maxima of the distance-to-boundary map seed the grains, so grains separate even where a boundary is broken [3, 4].
+- **Weak-boundary merge**: neighbours are joined when the mean signal on their shared boundary is below the threshold.
+- **Metrics**: ECD = 2√(A/π), area-weighted ECD = Σ(ECD·A)/ΣA, linear intercept along x and y [5], and a 95 % CI with %RA = CI / mean [6].
 
-Vanilla JavaScript (Canvas 2D, Typed Arrays) · Swift + WKWebView (macOS shell) · C# + WebView2 (Windows shell) · [UTIF.js](https://github.com/photopea/UTIF.js), [pako](https://github.com/nodeca/pako) (TIFF decoding) · No server
+| Parameter | Default | Meaning |
+|---|---|---|
+| Boundary width σ | 4.75 nm | Width of the lines to detect |
+| Line length filter | 60 nm | Only lines at least this long count |
+| Start / Continue level | 0.50 / 0.18 | Hysteresis thresholds |
+| Split depth h | 8 nm | Larger values split grains less |
+| Weak-boundary merge | 0.15 | Merge threshold for weak boundaries |
+| Minimum ECD | 80 nm | Smaller grains are left out of the statistics |
+
+## Releasing
+
+Push a version tag. GitHub Actions builds the macOS and Windows apps and publishes one Release with both zips and `RELEASE_NOTES.md` as its text.
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+To make the macOS zip by hand, run `bash build.sh --zip` and attach `dist/GrainTracer-x.y.z-macOS.zip`. Always upload the zip, not the `.app` itself, so the app keeps its executable permission.
 
 ## References
 
@@ -228,4 +195,4 @@ Vanilla JavaScript (Canvas 2D, Typed Arrays) · Swift + WKWebView (macOS shell) 
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2026 [HongHyun-kr](https://github.com/HongHyun-kr)
