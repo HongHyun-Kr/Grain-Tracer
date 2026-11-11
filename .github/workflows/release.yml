@@ -1,0 +1,59 @@
+# Builds the macOS and Windows apps and publishes them in one GitHub Release.
+#  - push a tag like v1.1.0  → both apps are built and attached to the Release (body: RELEASE_NOTES.md)
+#  - Actions tab ▸ Release ▸ Run workflow → builds both apps as downloadable artifacts only
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build app (Universal)
+        run: |
+          bash build.sh --zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrainTracer-macOS
+          path: dist/*.zip
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build app
+        run: dotnet build win/GrainTracer.csproj -c Release -o out/GrainTracer
+      - name: Zip
+        shell: pwsh
+        run: |
+          $v = (Select-String -Path win/GrainTracer.csproj -Pattern '<Version>(.+)</Version>').Matches[0].Groups[1].Value
+          Get-ChildItem out/GrainTracer -Recurse -Include *.pdb,*.xml | Remove-Item
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path out/GrainTracer -DestinationPath "dist/GrainTracer-$v-Windows.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrainTracer-Windows
+          path: dist/*.zip
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: [macos, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Grain Tracer ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          files: dist/*.zip

@@ -1,0 +1,15 @@
+# build output
+build/
+dist/
+out/
+win/bin/
+win/obj/
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+.idea/
+# never commit measurement data
+*.tif
+*.tiff
+data/
